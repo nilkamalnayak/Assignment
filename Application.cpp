@@ -1,5 +1,4 @@
 #include<fstream>
-#include<ostream>
 #include<iostream>
 
 using namespace std;
@@ -32,7 +31,11 @@ class AddressBook
     	void retrieveEntrySortByFirstName();
 	void retrieveEntrySortByLastName();
 	void retrieveByMatchCase(std::string p_name);
-	friend istream& operator>>(istream& is, AddressBook& en)
+	friend istream& operator>>(istream& is, AddressBook& en);
+	friend ostream& operator<<(ostream& os, AddressBook& en);
+};
+
+	istream& operator>>(istream& is, AddressBook& en)
 	{
 		is >> en.m_firstName;
 		is >> en.m_lastName;
@@ -40,18 +43,17 @@ class AddressBook
     		return is;
 	}
 
-	/*ostream& operator<<(ostream& os, AddressBook& en)
+	ostream& operator<<(ostream& os, AddressBook& en)
 	{
-    		os << en.m_firstName << " " << en.m_lastName << " " << en.m_mobileNumber;
+		cout<<en.m_firstName<<endl;
+    		os << en.m_firstName; // << " " << en.m_lastName << " " << en.m_mobileNumber;
     		return os;
-	}*/
-};
-
+	}
 
 int main () 
 {
-	ifstream file1;
-   	file1.open("Address_Book.txt", ios::app);
+	ofstream file1;
+   	file1.open("Address_Book.txt");
 
 	int opt;
 	//system("CLS");
@@ -71,8 +73,8 @@ int main ()
 				exit(1);
 			case 1:
 				Record.addEntry();
-				Record.displayRecord();
-				file1 >> Record;
+				//Record.displayRecord();
+				file1 << Record;
 				break;
 			case 2:
 				//removeEntry();
