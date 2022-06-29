@@ -1,68 +1,179 @@
 #include<fstream>
 #include<iostream>
+#include<sstream>
+#include<string>
+#include<vector>
+#include<algorithm>
 
 using namespace std;
 
 class AddressBook
 {
-	public:
     	std::string m_firstName;
     	std::string m_lastName;
     	long m_mobileNumber;
-	void addEntry()
-	{
-		std::string p_first, p_last;
+	public:
+		void addEntry()
+		{
+			std::string p_first, p_last;
         	long p_number;
-        	cout<<"Please Enter First Name"<<endl;
+        	cout<<"Please enter below Details : "<<endl;
+        	cout<<"First Name : ";
         	cin>>p_first;
-        	cout<<"Please Enter Last Name"<<endl;
+        	cout<<"Last Name : ";
         	cin>>p_last;
-        	cout<<"Please Enter Phone Number"<<endl;
+        	cout<<"Mobile Number : ";
         	cin>>p_number;
-		m_firstName = p_first;
-		m_lastName = p_last;
-		m_mobileNumber = p_number;
-	}
-	void displayRecord()
-	{
-		cout<<"First Name : "<<m_firstName<<" Last Name : "<<m_lastName<<" Mobile Number : "<<m_mobileNumber<<endl;	
-	}	
-    	void removeEntryByFirstName(std::string p_first);
-    	void retrieveEntrySortByFirstName();
-	void retrieveEntrySortByLastName();
-	void retrieveByMatchCase(std::string p_name);
-	friend istream& operator>>(istream& is, AddressBook& en);
-	friend ostream& operator<<(ostream& os, AddressBook& en);
+			m_firstName = p_first;
+			m_lastName = p_last;
+			m_mobileNumber = p_number;
+			ofstream file;
+			file.open("Address_Book.txt", ios::in | ios::out | ios::app);
+			file << m_firstName << " " << m_lastName << " " << m_mobileNumber << endl;;
+			cout<<"New Entry Added : ";
+			cout<<m_firstName<<" "<<m_lastName<<" "<<m_mobileNumber<<endl;	
+			file.close();
+		}
+    	void removeEntry()
+		{
+			string input_str;
+        	cout<<"Please enter First Name or Last Name or Phone Number to remove Entry"<<endl;
+			cin>>input_str;
+		/*	
+			string line;
+			ifstream file;
+			file.open("Address_Book.txt");
+			ofstream temp;
+			temp.open("temp.txt");
+			while(getline(file,line))
+			{
+				if(line != input_str)
+					temp << line <<endl;
+			}
+			temp.close();
+			file.close();
+
+			const char *p = "Address_Book.txt";
+			remove(p);
+			rename("temp.txt", p);
+		*/	
+			string myLine;
+			ifstream file;
+			file.open("Address_Book.txt", ios::in | ios::out | ios::app);
+			if(file.is_open())
+			{
+				while(getline(file, myLine))
+				{
+					cout<<"NILA : "<<myLine<<endl;
+					while(true)
+					{
+						size_t found = myLine.find(input_str);
+						if(found != string::npos)
+						{
+							cout<<"found"<<endl;
+							myLine.replace(found, input_str.length(), "acronis");
+							//myLine.replace(myLine.find(input_str), input_str.length(), "acronis");
+						}
+						else
+							break;
+					}
+					cout<<"myLine : "<<myLine<<endl;
+				}
+			}
+			else
+				cout<<"Unable to open the File"<<endl;
+
+			file.close();
+		}
+    	void retrieveEntrySortByFirstName()
+		{
+			string myLine;
+			vector<string> myVec;
+			ifstream file;
+			file.open("Address_Book.txt", ios::in | ios::out | ios::app);
+			if(file.is_open())
+			{
+				while(file)
+				{
+					getline(file, myLine);
+					myVec.push_back(myLine);
+				}
+			}
+			else
+				cout<<"Unable to open the File"<<endl;
+			sort(myVec.begin(), myVec.end());
+			for(auto x : myVec)
+				cout<<x<<"\n";
+			file.close();
+		}
+		void retrieveEntrySortByLastName()
+		{
+			string myLine;
+			vector<string> myVec;
+			ifstream file;
+			file.open("Address_Book.txt", ios::in | ios::out | ios::app);
+			if(file.is_open())
+			{
+				while(file)
+				{
+					getline(file, myLine);
+					string word, temp;
+					int count = 0;
+					istringstream str(myLine);
+					string final_str;
+					while(str >> word)
+					{
+						if(count == 1)
+							temp = word;
+						else
+							final_str = final_str +" " +  word;
+						count++;
+					}
+					final_str.insert(0, temp);
+					myVec.push_back(final_str);
+				}
+			}
+			else
+				cout<<"Unable to open the File"<<endl;
+			sort(myVec.begin(), myVec.end());
+			for(auto x : myVec)
+				cout<<x<<"\n";
+			file.close();
+			
+		}
+		void retrieveByMatchCase(std::string p_name);
+		void displayExistingEntry()
+		{
+			string myLine;
+			ifstream file;
+			file.open("Address_Book.txt", ios::in | ios::out | ios::app);
+			if(file.is_open())
+			{
+				while(file)
+				{
+					getline(file, myLine);
+					cout<<myLine<<endl;
+				}
+			}
+			else
+				cout<<"Unable to open the File"<<endl;
+
+			file.close();
+		}
 };
-
-	istream& operator>>(istream& is, AddressBook& en)
-	{
-		is >> en.m_firstName;
-		is >> en.m_lastName;
-		is >> en.m_mobileNumber;
-    		return is;
-	}
-
-	ostream& operator<<(ostream& os, AddressBook& en)
-	{
-		cout<<en.m_firstName<<endl;
-    		os << en.m_firstName; // << " " << en.m_lastName << " " << en.m_mobileNumber;
-    		return os;
-	}
 
 int main () 
 {
-	ofstream file1;
-   	file1.open("Address_Book.txt");
-
 	int opt;
+	char c;
 	//system("CLS");
-	//AddressBook Obj;
 	do
 	{
-		cout<<"\nFoundry Address Book"<<endl;
-		cout<<"Please enter your option";
-		cout<<"\n0. Exit the Application.\n1. Add an entry.\n2. Remove an entry.\n3. Retrieve entries in alphabetical order, sorted by first name.\n4. Retrieve entries in alphabetical order, sorted by last name.\n5. Retrieve entries whose first or last name exactly or partially match."<<endl;
+		cout<<"-------------------------------START-------------------------------"<<endl;
+		cout<<"Welcome to Foundry Address Book"<<endl; 
+		cout<<"Please choose from below options :- "<<endl;;
+		cout<<"0. Exit the Application.\n1. Add an entry.\n2. Remove an entry.\n3. Retrieve entries in alphabetical order, sorted by first name.\n4. Retrieve entries in alphabetical order, sorted by last name.\n5. Retrieve entries whose first or last name exactly or partially match.\n6. Display Existing Entry."<<endl;
+		cout<<"-----------------------------END------------------------------------"<<endl;
 		cin>>opt;
 		AddressBook Record;
 
@@ -73,18 +184,28 @@ int main ()
 				exit(1);
 			case 1:
 				Record.addEntry();
-				//Record.displayRecord();
-				file1 << Record;
 				break;
 			case 2:
-				//removeEntry();
+				Record.removeEntry();
+				break;
+			case 3:
+				Record.retrieveEntrySortByFirstName();
+				break;
+			case 4:
+				Record.retrieveEntrySortByLastName();
+				break;
+			case 5:
+				//retrieveByMatchCase(std::string p_name)
+				break;
+			case 6:
+				Record.displayExistingEntry();
 				break;
 			default:
 				cout<<"Wrong Input. Please Try again or Press 0 for exit the application."<<endl;
 		}
-	}while(1);
+		cout<<"\nPlease press 'y' or 'Y' to continue, otherwise press any other key"<<endl;
+		cin>>c;
+	}while(c == 'y' || c == 'Y');
 
-
-  file1.close();
   return 0;
 }
